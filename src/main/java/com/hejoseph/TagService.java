@@ -41,6 +41,7 @@ public class TagService {
     }
 
     public void printSubjects(){
+        System.out.println("---------------- All Tags -------------");
         JSONObject tags = (JSONObject) this.jsonData.get("tags");
         List<String> keys = new ArrayList<>(tags.keySet());
         Collections.sort(keys);
