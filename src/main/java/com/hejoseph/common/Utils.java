@@ -1,6 +1,5 @@
-package com.jaysef.demo.common;
+package com.hejoseph.common;
 
-import com.jaysef.demo.twitch.Compute;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -11,8 +10,6 @@ import java.nio.file.attribute.FileTime;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -22,22 +19,18 @@ import java.util.regex.Pattern;
 public class Utils {
 
     public static void main(String[] args) throws ParseException {
+//        System.out.println(convertMinutesToTimeFormat(60));
+        System.out.println(addTime("23:00:00","2:00:11"));
+    }
 
-        String time = "00:11h01";
-        String[] arr = time.split(":|h");
-//        String duration = "03:09:04";
-//        int after = convertStringToTimeSec(time) + convertStringToTimeSec(duration);
-//        System.out.println(convertTimeSecToString(after));
+    public static String convertMinutesToTimeFormat(int minutes) {
+        int hours = minutes / 60;
+        int remainingMinutes = minutes % 60;
 
-        Date d = new Date();
-        String ss = convertDateToString(d);
+        // Format the time as "dd:hh:mm:ss"
+        String timeFormat = String.format("%02d:%02d:%02d", hours, remainingMinutes, 0);
 
-
-        String s = "Just Chatting(00:03:04)->02:18:04";
-        String duration = Compute.singleRegex(".*\\((.*)\\)->",s);
-        String position = Compute.singleRegex("->(.*)",s);
-        String title = Compute.singleRegex("(.*)\\(.*\\)->.*",s);
-        System.out.println(title);
+        return timeFormat;
     }
 
     public static String singleRegex(String pattern, String value){
@@ -95,6 +88,34 @@ public class Utils {
             sec = Integer.parseInt(times[1]);
         }
         return hour*3600 + min*60 +sec;
+    }
+
+
+
+
+    public static String addTime(String time1, String time2) {
+        String[] parts1 = time1.split(":");
+        String[] parts2 = time2.split(":");
+
+        int hours1 = Integer.parseInt(parts1[0]);
+        int minutes1 = Integer.parseInt(parts1[1]);
+        int seconds1 = Integer.parseInt(parts1[2]);
+
+        int hours2 = Integer.parseInt(parts2[0]);
+        int minutes2 = Integer.parseInt(parts2[1]);
+        int seconds2 = Integer.parseInt(parts2[2]);
+
+        int totalSeconds = seconds1 + seconds2;
+        int carryMinutes = totalSeconds / 60;
+        int remainingSeconds = totalSeconds % 60;
+
+        int totalMinutes = minutes1 + minutes2 + carryMinutes;
+        int carryHours = totalMinutes / 60;
+        int remainingMinutes = totalMinutes % 60;
+
+        int totalHours = hours1 + hours2 + carryHours;
+
+        return String.format("%02d:%02d:%02d", totalHours, remainingMinutes, remainingSeconds);
     }
 
     public static Date convertFrenchDateStringToDate(String dateString) throws ParseException {

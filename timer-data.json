@@ -1,0 +1,19 @@
+{
+  "2023-10-09" : {
+    "youtube" : "0:00:01",
+    "game" : "0:02:05",
+    "eating" : "0:10:00"
+  },
+  "2023-10-10" : {
+    "youtube" : "02:24:01",
+    "game" : "00:06:01",
+    "workout" : "0:10:00",
+    "reddit" : "00:02:00"
+  },
+  "tags" : {
+    "need" : [ "eating" ],
+    "work" : [ "coding", "workout" ],
+    "reading" : [ "reddit" ],
+    "fun" : [ "youtube", "game" ]
+  }
+}
