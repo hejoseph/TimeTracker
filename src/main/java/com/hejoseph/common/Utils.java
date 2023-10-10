@@ -1,6 +1,5 @@
-package com.jaysef.demo.common;
+package com.hejoseph.common;
 
-import com.jaysef.demo.twitch.Compute;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -11,8 +10,6 @@ import java.nio.file.attribute.FileTime;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -34,11 +31,12 @@ public class Utils {
 
 
         String s = "Just Chatting(00:03:04)->02:18:04";
-        String duration = Compute.singleRegex(".*\\((.*)\\)->",s);
-        String position = Compute.singleRegex("->(.*)",s);
-        String title = Compute.singleRegex("(.*)\\(.*\\)->.*",s);
+        String duration = singleRegex(".*\\((.*)\\)->",s);
+        String position = singleRegex("->(.*)",s);
+        String title = singleRegex("(.*)\\(.*\\)->.*",s);
         System.out.println(title);
     }
+
 
     public static String singleRegex(String pattern, String value){
         Pattern p=Pattern.compile(pattern);
