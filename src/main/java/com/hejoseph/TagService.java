@@ -5,10 +5,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class TagService {
 
@@ -33,28 +30,42 @@ public class TagService {
 
         this.jsonData = JsonFileUtils.loadJsonData(filePath);
         this.jsonData = keepTagsOnly();
+    }
 
-        tagStr="";
-        clear();
-        tags = new HashMap<String, String>();
+    public JSONObject getJsonData() {
+        return jsonData;
+    }
 
+    public void setJsonData(JSONObject jsonData) {
+        this.jsonData = jsonData;
+    }
 
+    public void printSubjects(){
+        JSONObject tags = (JSONObject) this.jsonData.get("tags");
+        List<String> keys = new ArrayList<>(tags.keySet());
+        Collections.sort(keys);
+        for (String key : keys) {
+            JSONArray jsonArray = (JSONArray) tags.get(key);
 
+            StringBuilder mergedValues = new StringBuilder();
 
-//        try{
-//            String content = Utils.getFileContent(filePath);
-//            String[] lines = content.split("\r\n");
-//            for (String line : lines) {
-//                tagStr+=line+"\n\r";
-//                String[] arr = line.split(":");
-//                if (arr.length == 2){
-//                    tags.put(arr[0], arr[1]);
-////                    tagCount.put(arr[0], 0);
-//                }
-//            }
-//        }catch(Exception e){
-//            System.out.println("file tag not found");
-//        }
+            // Iterate through the JSON array and merge values with semicolons
+            for (Object element : jsonArray) {
+                if (element instanceof String) {
+                    // Add the element to the merged string with a semicolon separator
+                    mergedValues.append(element).append(";");
+                }
+            }
+
+            // Convert the StringBuilder to a final merged string
+            String result = mergedValues.toString();
+
+            // Remove the trailing semicolon if it exists
+            if (result.endsWith(";")) {
+                result = result.substring(0, result.length() - 1);
+            }
+            System.out.println(key + ":" + result);
+        }
     }
 
     private JSONObject keepTagsOnly() {
@@ -64,84 +75,8 @@ public class TagService {
         return result;
     }
 
-    public void printTags(){
-        System.out.println(tagStr);
-    }
-
-    public void clear(){
-        tagCount = new HashMap<>();
-        tagCount.put("fun",0);
-        tagCount.put("work",0);
-        newTags = "";
-    }
-
-    public String getGroup(String subject){
-        for (Map.Entry<String, String> entry : tags.entrySet()) {
-            String group = entry.getKey();
-            String subjects = entry.getValue();
-            if(subjects.contains(subject)){
-                return group;
-            }
-        }
-
-        for(int i = 0; i < tagGroup.length ; i++){
-            String group = tagGroup[i];
-            if(subject.startsWith(group+"_")){
-                return group;
-            }
-        }
-
-        appendTags(subject);
-        return "other";
-    }
-
-    public void appendTags(String value){
-        if(newTags.isEmpty()){
-            newTags = value;
-        }else{
-            if(!newTags.contains(value)) newTags+=","+value;
-        }
-    }
-
-    public void countTag(String subject, int nb){
-        String group = getGroup(subject);
-        if(tagCount.containsKey(group)){
-            tagCount.put(group,tagCount.get(group)+nb);
-        }else{
-            tagCount.put(group,nb);
-        }
-    }
-
-    public HashMap<String, Integer> getTagCount() {
-        return tagCount;
-    }
-
-    public HashMap<String, String> getTags() {
-        return tags;
-    }
-
-    public String getNewTags() {
-        return newTags;
-    }
-
-
-
-
-
-
     private JSONObject jsonData;
     private String filePath;
-
-
-//    private JSONObject loadJsonData() {
-//        try (FileReader reader = new FileReader(filePath)) {
-//            JSONParser jsonParser = new JSONParser();
-//            return (JSONObject) jsonParser.parse(reader);
-//        } catch (IOException | ParseException e) {
-//            e.printStackTrace();
-//            return new JSONObject();
-//        }
-//    }
 
     public void createTag(String tagGroup, String tagName) {
         JSONArray tagArray = getOrCreateTagArray(tagGroup);
@@ -206,11 +141,7 @@ public class TagService {
             }
         }
 
-        return null; // Tag not found in any tag group
+        return null;
     }
-
-
-
-
 
 }

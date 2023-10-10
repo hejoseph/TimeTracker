@@ -1,15 +1,19 @@
 {
-	"tags":{
-		"fun":["youtube", "game"],
-		"work":["coding", "workout"],
-		"need":["eating"]
-	},
-	"2023-10-09":{
-		"youtube":"0:00:01",
-		"eating":"0:10:00"
-	},
-	"2023-10-10":{
-		"game":"0:00:01",
-		"workout":"0:10:00"
-	}
+  "2023-10-09" : {
+    "youtube" : "0:00:01",
+    "game" : "0:02:05",
+    "eating" : "0:10:00"
+  },
+  "2023-10-10" : {
+    "youtube" : "02:20:01",
+    "game" : "0:00:01",
+    "poop" : "0:15:00",
+    "workout" : "0:10:00",
+    "change" : "00:01:00"
+  },
+  "tags" : {
+    "need" : [ "eating" ],
+    "work" : [ "coding", "workout" ],
+    "fun" : [ "youtube", "game" ]
+  }
 }

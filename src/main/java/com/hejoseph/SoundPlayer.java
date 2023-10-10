@@ -8,7 +8,7 @@ public class SoundPlayer {
 
     public static void main(String[] args) throws InterruptedException {
         for(int i = 0;i < 60 ; i++){
-            Thread.sleep(60000);
+            Thread.sleep(2000);
             play();
         }
     }

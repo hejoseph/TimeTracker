@@ -5,9 +5,6 @@ import com.hejoseph.common.Utils;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -15,14 +12,12 @@ import java.util.concurrent.TimeUnit;
 public class Timer {
 
 
-//    public final String dataDir = "C:\\workspace\\monitorBright\\";
     public final String dataDir = "./";
     public final String tagFile = "tags.txt";
     public String exec;
 
     public final String dataJsonFile = "timer-data.json";
 
-    //    public String input;
     public Scanner in;
     public boolean busy;
 
@@ -33,6 +28,7 @@ public class Timer {
 
     Map<String, Integer> hm;
     private TagService tagService;
+    private TimerService timerService;
 
     private boolean justStarted = true;
 
@@ -47,7 +43,8 @@ public class Timer {
         in = new Scanner(System.in);
         refreshFileName();
         hm = loadSubjects(dataDir + currentFileName);
-        tagService = new TagService(tagFile);
+        tagService = new TagService(dataJsonFile);
+        timerService = new TimerService(dataJsonFile);
     }
 
     public String consumeInput(){
@@ -144,7 +141,8 @@ public class Timer {
 
     private void deleteSubject() throws Exception {
         while (!getFirstInput().equalsIgnoreCase("back")) {
-            printSubjects(hm);
+//            printSubjects(hm);
+            timerService.printToday();
             System.out.println("---------------------Delete Subject---------------------");
             System.out.println("type : 'subject' , to delete subject");
             System.out.println("[back] menu");
@@ -152,8 +150,11 @@ public class Timer {
             if(!getFirstInput().equalsIgnoreCase("back")){
                 try {
                     String subject = consumeInput();
-                    hm.remove(subject);
-                    updateStateToFile(hm);
+                    String dateStr = timerService.getStringDate(new Date());
+                    timerService.deleteTagValue(dateStr, subject);
+//                    hm.remove(subject);
+//                    updateStateToFile(hm);
+                    timerService.updateDataToJsonFile();
                 } catch (Exception e) {
                 }
             }
@@ -196,39 +197,19 @@ public class Timer {
     }
 
     public void printLastXDays(int days) throws IOException {
-        ZonedDateTime time = ZonedDateTime.now();
-        for (int i = days; i >= 0; i--) {
-            ZonedDateTime tmp = time.minus(i, ChronoUnit.DAYS);
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("-yyyy-MM-dd");
-            String formattedString = tmp.format(formatter);
-            printDayFile(dataDir + "time" + formattedString + ".txt");
-        }
+        timerService.printLastXDays(days);
     }
 
     public void printSumLastXDays(int days) throws IOException {
-        Map<String, Integer> total = new TreeMap<>();
-        ZonedDateTime time = ZonedDateTime.now();
-        for (int i = days; i >= 0; i--) {
-            ZonedDateTime tmp = time.minus(i, ChronoUnit.DAYS);
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("-yyyy-MM-dd");
-            String formattedString = tmp.format(formatter);
-            Map<String, Integer> tmp2 = loadSubjects(dataDir + "time" + formattedString + ".txt");
-            for (Map.Entry<String, Integer> entry : tmp2.entrySet()) {
-                int value = ((Integer) entry.getValue()).intValue();
-                String key = entry.getKey();
-                addSubject(total, key, value);
-            }
-        }
-        System.out.println("----------last " + days + " day(s)------");
-        printSubjects(total);
+        timerService.sumDurationsLastXDays(days);
     }
 
     public void countingMenu() throws Exception {
         while (!getFirstInput().equalsIgnoreCase("back")) {
             System.out.println("--------------Today---------------");
-            printSubjects(hm);
+            timerService.printToday();
             System.out.println("-----------------");
-            tagService.printTags();
+            tagService.printSubjects();
             System.out.println("Create/Choose subject ?:....  / [back]");
             System.out.println("[change] switch subject counter");
             System.out.println("[back] menu");
@@ -254,31 +235,33 @@ public class Timer {
 
         while (tmpMin > 0 && !input.equalsIgnoreCase("change") && !input.equalsIgnoreCase("back")) {
             Date start = new Date();
-            Thread.sleep(60000L);
+            Thread.sleep(1000L);
             Date current = new Date();
             long diff = current.getTime() - start.getTime();
             long minutes = TimeUnit.MILLISECONDS.toMinutes(diff);
             if(getDateOfMonth(start) != getDateOfMonth(current)){
                 hm = new TreeMap<>();
             }
-            if(minutes > 1 && minutes < 120){
+            if(minutes > 1 && minutes < 120){ //when computer goes to sleep, and you are for example cleaning the room, minutes will be added to subject
                 System.out.println(start);
                 System.out.println(current);
                 System.out.println("diff = "+minutes+" min");
                 i+=minutes;
                 tmpMin-=minutes;
-                updateStateToFile(hm, tmpSubject, (int) minutes);
+//                updateStateToFile(hm, tmpSubject, (int) minutes);
+                timerService.addTimeToSubjectForDate(timerService.getStringDate(current), tmpSubject, Utils.convertMinutesToTimeFormat((int)minutes));
             }else{
                 i++;
                 tmpMin--;
-                updateStateToFile(hm, tmpSubject, 1);
+                timerService.addTimeToSubjectForDate(timerService.getStringDate(current), subject, "00:01:00");
+//                updateStateToFile(hm, tmpSubject, 1);
             }
             display = (tmp == true) ? i : tmpMin;
             System.out.println(display);
             input = consumeInput();
         }
         SoundPlayer.play();
-        Utils.sendKeys();
+//        Utils.sendKeys();
     }
 
     public void update(String inputText) {
@@ -328,50 +311,53 @@ public class Timer {
     }
 
     public void printSubjects(Map<String, Integer> hm) {
-        boolean displaySummary = false;
-        int total = 0;
-        for (Map.Entry<String, Integer> entry : hm.entrySet()) {
-            int time = ((Integer) entry.getValue()).intValue();
-            String subject = entry.getKey();
-            String timeStr = Utils.convertTimeFormat(time);
-            System.out.println(subject + "=" + timeStr);
-            total += time;
-            tagService.countTag(subject, time);
-        }
-
-        if (total > 0) {
-            System.out.println("--------");
-            System.out.println("total:" + Utils.convertTimeFormat(total));
-            displaySummary = true;
-        }
-        if(displaySummary){
-            for (Map.Entry<String, Integer> entry : tagService.getTagCount().entrySet()) {
-                int time = ((Integer) entry.getValue()).intValue();
-                String key = entry.getKey();
-                String timeStr = Utils.convertTimeFormat(time);
-                System.out.println(key + ":" + timeStr);
-            }
-        }
-
-        if (tagService.getNewTags().length() > 0) {
-            System.out.println("newTags:" + tagService.getNewTags());
-        }
-        tagService.clear();
+//        boolean displaySummary = false;
+//        int total = 0;
+//        for (Map.Entry<String, Integer> entry : hm.entrySet()) {
+//            int time = ((Integer) entry.getValue()).intValue();
+//            String subject = entry.getKey();
+//            String timeStr = Utils.convertTimeFormat(time);
+//            System.out.println(subject + "=" + timeStr);
+//            total += time;
+//            tagService.countTag(subject, time);
+//        }
+//
+//        if (total > 0) {
+//            System.out.println("--------");
+//            System.out.println("total:" + Utils.convertTimeFormat(total));
+//            displaySummary = true;
+//        }
+//        if(displaySummary){
+//            for (Map.Entry<String, Integer> entry : tagService.getTagCount().entrySet()) {
+//                int time = ((Integer) entry.getValue()).intValue();
+//                String key = entry.getKey();
+//                String timeStr = Utils.convertTimeFormat(time);
+//                System.out.println(key + ":" + timeStr);
+//            }
+//        }
+//
+//        if (tagService.getNewTags().length() > 0) {
+//            System.out.println("newTags:" + tagService.getNewTags());
+//        }
+//        tagService.clear();
     }
 
     public void addSubject() throws Exception {
         while (!getFirstInput().equalsIgnoreCase("back")) {
-            printSubjects(hm);
+//            printSubjects(hm);
+            timerService.printToday();
             System.out.println("---------------------Add Minute to subject-----------------------");
-            System.out.println("type : 'subject;5' , to add 5 min to subject");
+            System.out.println("type : 'subject;00:05:00' , to add 5 min to subject");
             System.out.println("[back] menu");
             waitInput();
             if(!getFirstInput().equalsIgnoreCase("back")){
                 try {
                     String[] arr = consumeInput().split(";");
                     String subject = arr[0];
-                    int value = Integer.parseInt(arr[1]);
-                    updateStateToFile(hm, subject, value);
+                    String timeStr = arr[1];
+//                    updateStateToFile(hm, subject, value);
+                    String dateStr = timerService.getStringDate(new Date());
+                    timerService.addTimeToSubjectForDate(dateStr, subject, timeStr);
                 } catch (Exception e) {
                 }
             }
