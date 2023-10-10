@@ -19,7 +19,7 @@ public class TimerServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        timerService = new TimerService(testFilePath);
+        timerService = TimerService.getInstance(testFilePath);
     }
 
     @Test

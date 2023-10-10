@@ -16,7 +16,7 @@ public class TagServiceTest {
     public void setUp() {
 
         // Create a new TagService for each test case with a clean JSON file
-        tagService = new TagService(TEST_FILE_PATH);
+        tagService = TagService.getInstance(TEST_FILE_PATH);
     }
 
     @Test
@@ -68,7 +68,7 @@ public class TagServiceTest {
         tagService = null; // Clear the reference to the current instance
 
         // Create a new TagService and check if the tag persists in the JSON file
-        tagService = new TagService(TEST_FILE_PATH);
+        tagService = TagService.getInstance(TEST_FILE_PATH);
         List<String> tags = tagService.readTags("fun");
         assertTrue(tags.contains("newTag"));
     }

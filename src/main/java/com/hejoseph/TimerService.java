@@ -8,16 +8,27 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class TimerService {
+
+    private static TimerService instance;
+
     private JSONObject jsonData;
     private String filePath;
     private TagService tagService;
     private HashMap<String, String> tagCount;
 
-    public TimerService(String filePath) {
+    // Public static method to provide the instance of the Singleton class
+    public static TimerService getInstance(String filePath) {
+        if (instance == null) {
+            instance = new TimerService(filePath);
+        }
+        return instance;
+    }
+
+    private TimerService(String filePath) {
         this.filePath = filePath;
         this.jsonData = JsonFileUtils.loadJsonData(filePath);
         keepOnlyDateData();
-        tagService = new TagService(filePath);
+        tagService = TagService.getInstance(filePath);
     }
 
     public JSONObject getJsonData() {
@@ -62,7 +73,7 @@ public class TimerService {
     public void printToday() {
         tagCount = new HashMap<>();
         String today = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
-        System.out.println("------------" + today + "------------");
+        System.out.println("------------ Today : " + today + "------------");
         JSONObject dateState = (JSONObject) this.jsonData.get(today);
         List<String> subjects = new ArrayList<>(dateState.keySet());
         Collections.sort(subjects);
@@ -239,5 +250,26 @@ public class TimerService {
     public static void main(String[] args) {
         TimerService timerService = new TimerService("timer-data.json");
         timerService.sumDurationsLastSevenDays();
+    }
+
+    public void printNoTaggedSubject() {
+        this.jsonData.remove("tags");
+        List<String> dates = new ArrayList<>(this.jsonData.keySet());
+        Collections.sort(dates);
+        String untagSubject = "";
+        for(String date : dates) {
+            JSONObject dateState = (JSONObject) this.jsonData.get(date);
+            List<String> subjects = new ArrayList<>(dateState.keySet());
+            for (String subject : subjects) {
+                String tagGroup = tagService.getTagGroupForTag(subject);
+                if (tagGroup == null) {
+                    untagSubject += subject + ";";
+                }
+            }
+        }
+        if(untagSubject.length()>0){
+            untagSubject = untagSubject.substring(0, untagSubject.length()-1);
+            System.out.println("no tag for subject : "+untagSubject);
+        }
     }
 }

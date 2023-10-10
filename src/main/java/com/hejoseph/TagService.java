@@ -8,7 +8,7 @@ import java.io.File;
 import java.util.*;
 
 public class TagService {
-
+    private static TagService instance;
     public final String[] tagGroup = new String[]{"fun", "work", "need"};
     HashMap<String, Integer> tagCount;
     HashMap<String, String> tags;
@@ -16,7 +16,14 @@ public class TagService {
     private String tagStr;
     private String newTags;
 
-    public TagService(String filePath){
+    public static TagService getInstance(String filePath) {
+        if (instance == null) {
+            instance = new TagService(filePath);
+        }
+        return instance;
+    }
+
+    private TagService(String filePath){
         this.filePath = filePath;
         File file = new File(filePath);
         if (!file.exists()) {
@@ -82,6 +89,9 @@ public class TagService {
     public void createTag(String tagGroup, String tagName) {
         JSONArray tagArray = getOrCreateTagArray(tagGroup);
         tagArray.add(tagName);
+        JSONObject tags = (JSONObject)this.jsonData.get("tags");
+        tags.put(tagGroup, tagArray);
+        this.jsonData.put("tags", tags);
 //        saveJsonData();
     }
 
@@ -94,12 +104,14 @@ public class TagService {
         JSONArray tagArray = getOrCreateTagArray(tagGroup);
         tagArray.clear();
         tagArray.addAll(updatedTags);
+        this.jsonData.put("tags", tagArray);
 //        saveJsonData();
     }
 
     public void deleteTag(String tagGroup, String tagName) {
         JSONArray tagArray = getOrCreateTagArray(tagGroup);
         tagArray.remove(tagName);
+        this.jsonData.put("tags", tagArray);
 //        saveJsonData();
     }
 

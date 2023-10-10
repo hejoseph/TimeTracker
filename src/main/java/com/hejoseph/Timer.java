@@ -35,8 +35,8 @@ public class Timer {
     public Timer() throws Exception {
         inputs = new ArrayList<>();
         in = new Scanner(System.in);
-        tagService = new TagService(dataJsonFile);
-        timerService = new TimerService(dataJsonFile);
+        tagService = TagService.getInstance(dataJsonFile);
+        timerService = TimerService.getInstance(dataJsonFile);
     }
 
     public String consumeInput(){
@@ -75,6 +75,7 @@ public class Timer {
             System.out.println("---------------Menu------------");
             System.out.println("[count] startCounting");
             System.out.println("[add] add min to subject");
+            System.out.println("[addTags] add tag for subject");
             System.out.println("[del] delete a subject");
             System.out.println("[p7] printLastXDays(7)");
             System.out.println("[ps7] printSumLastXDays(7)");
@@ -183,6 +184,7 @@ public class Timer {
         while (!getFirstInput().equalsIgnoreCase("back")) {
             timerService.printToday();
             tagService.printSubjects();
+            System.out.println("--------------------------------------------");
             System.out.println("Create/Choose subject ?:....  / [back]");
             System.out.println("type 'youtube' to start the timer for youtube");
             System.out.println("type 'youtube;5' to start the timer for youtube, it will end in 5 minutes");
@@ -224,7 +226,7 @@ public class Timer {
             }else{
                 i++;
                 tmpMin--;
-                timerService.addTimeToSubjectForDate(timerService.getStringDate(current), subject, "00:01:00");
+                timerService.addTimeToSubjectForDate(timerService.getStringDate(current), tmpSubject, "00:01:00");
             }
             display = (tmp == true) ? i : tmpMin;
             System.out.println(display);
@@ -288,18 +290,20 @@ public class Timer {
             }
         }
         consumeInput();
+        timerService.updateDataToJsonFile();
     }
 
     public void addTags() throws Exception {
         while (!getFirstInput().equalsIgnoreCase("back")) {
             tagService.printSubjects();
+            timerService.printNoTaggedSubject();
             System.out.println("---------------------Add new tags-----------------------");
             System.out.println("type : 'fun:youtube' , to tag youtube as 'fun' tag");
             System.out.println("[back] menu");
             waitInput();
             if(!getFirstInput().equalsIgnoreCase("back")){
                 try {
-                    String[] arr = consumeInput().split(";");
+                    String[] arr = consumeInput().split(":");
                     String tag = arr[0];
                     String subject = arr[1];
                     tagService.createTag(tag, subject);
@@ -307,6 +311,7 @@ public class Timer {
                     System.out.println("you did not respect the format <tagGroup>:<subject>");
                 }
             }
+            timerService.updateDataToJsonFile();
         }
         consumeInput();
     }

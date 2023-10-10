@@ -5,13 +5,15 @@
     "eating" : "0:10:00"
   },
   "2023-10-10" : {
-    "youtube" : "02:20:01",
+    "youtube" : "02:24:01",
     "game" : "00:06:01",
-    "workout" : "0:10:00"
+    "workout" : "0:10:00",
+    "reddit" : "00:02:00"
   },
   "tags" : {
     "need" : [ "eating" ],
     "work" : [ "coding", "workout" ],
+    "reading" : [ "reddit" ],
     "fun" : [ "youtube", "game" ]
   }
 }
