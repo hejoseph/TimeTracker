@@ -78,18 +78,18 @@ Now you're ready to start using the Timer Application! Follow the on-screen inst
 
 When you run the Timer Application, you'll be greeted with a user-friendly menu that offers various options:
 
-count: Start tracking time for an activity.
-add: Add minutes to a specific subject.
-addTags: Create or manage tags for your activities.
-del: Delete a subject from your tracked activities.
-p7: Print the activities for the last 7 days.
-ps7: Print the summary of activities for the last 7 days.
-p: Print the activities for a specific number of days.
-ps: Print the summary of activities for a specific number of days.
-stop: Exit the Timer Application.
+- count: Start tracking time for an activity.
+- add: Add minutes to a specific subject.
+- addTags: Create or manage tags for your activities.
+- del: Delete a subject from your tracked activities.
+- p7: Print the activities for the last 7 days.
+- ps7: Print the summary of activities for the last 7 days.
+- p: Print the activities for a specific number of days.
+- ps: Print the summary of activities for a specific number of days.
+- stop: Exit the Timer Application.
 
 ### Time Tracking
 
-To start tracking time for a specific activity, enter count. You can specify the activity and its duration (in minutes) in the format activity;minutes.
-To add minutes to a subject, use the add option and provide the subject and the duration in the format subject;hh:mm:ss.
-You can create or manage tags for your activities using the addTags option, allowing you to categorize your time.
+- To start tracking time for a specific activity, enter count. You can specify the activity and its duration (in minutes) in the format activity;minutes.
+- To add minutes to a subject, use the add option and provide the subject and the duration in the format subject;hh:mm:ss.
+- You can create or manage tags for your activities using the addTags option, allowing you to categorize your time.
