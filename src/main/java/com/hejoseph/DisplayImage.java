@@ -1,23 +1,39 @@
 package com.hejoseph;
 
 import javax.swing.*;
-import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
 import java.io.File;
 
 public class DisplayImage extends JFrame {
+
+    public static void main(String[] args) {
+        run();
+    }
 
     public DisplayImage() throws Exception {
         setTitle("Image Display");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         // Replace this path with the actual path to your background image file
-        String backgroundImagePath = "./break_reminder.jpg";
-        String topImagePath = "./smallclose.png";
+        String backgroundImagePath = "break_reminder.jpg";
+        String topImagePath = "smallclose.png";
+
+        File file = new File(backgroundImagePath);
+        File file2 = new File(topImagePath);
+
+        if(!file.exists()){
+            System.out.println(String.format("ERROR : file %s does not exist", file.getAbsolutePath()));
+            return;
+        }
+
+        if(!file2.exists()){
+            System.out.println(String.format("ERROR : file %s does not exist", file2.getAbsolutePath()));
+            return;
+        }
+
 
         ImageIcon backgroundIcon = new ImageIcon(backgroundImagePath);
         Image backgroundImage = backgroundIcon.getImage();
