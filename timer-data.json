@@ -10,6 +10,9 @@
     "workout" : "0:10:00",
     "reddit" : "00:02:00"
   },
+  "2024-01-18" : {
+    "test" : "00:01:00"
+  },
   "tags" : {
     "need" : [ "eating" ],
     "work" : [ "coding", "workout" ],

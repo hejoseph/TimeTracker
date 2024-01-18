@@ -17,7 +17,7 @@ public class JsonFileUtils {
             JSONParser jsonParser = new JSONParser();
             return (JSONObject) jsonParser.parse(reader);
         } catch (IOException | ParseException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
             return new JSONObject();
         }
     }

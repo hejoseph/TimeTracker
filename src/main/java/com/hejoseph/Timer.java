@@ -41,6 +41,7 @@ public class Timer {
 
     public String consumeInput(){
         if(inputExists()){
+            Utils.clearConsole();
             return inputs.remove(0);
         }
         return "";
@@ -188,7 +189,7 @@ public class Timer {
             System.out.println("Create/Choose subject ?:....  / [back]");
             System.out.println("type 'youtube' to start the timer for youtube");
             System.out.println("type 'youtube;5' to start the timer for youtube, it will end in 5 minutes");
-            System.out.println("[change] switch subject counter when timer is running ... (but have to wait 1 min");
+            System.out.println("[change] switch subject counter when timer is running ... (but have to wait 1 min)");
             System.out.println("[back] menu");
             waitInput();
             if (!getFirstInput().equalsIgnoreCase("back")) {
@@ -233,6 +234,8 @@ public class Timer {
             input = consumeInput();
         }
         SoundPlayer.play();
+        DisplayImage.run();
+
 //        Utils.sendKeys(); //send win+1, you can put terminal as first taskbar program to make it pop up when timer ends
     }
 

@@ -75,6 +75,7 @@ public class TimerService {
         String today = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
         System.out.println("------------ Today : " + today + "------------");
         JSONObject dateState = (JSONObject) this.jsonData.get(today);
+        if(dateState == null)return;
         List<String> subjects = new ArrayList<>(dateState.keySet());
         Collections.sort(subjects);
         String total = "00:00:00";

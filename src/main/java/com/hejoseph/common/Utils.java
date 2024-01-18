@@ -42,6 +42,23 @@ public class Utils {
         return null;
     }
 
+    public static void clearConsole() {
+        String os = System.getProperty("os.name").toLowerCase();
+
+        try {
+            if (os.contains("win")) {
+                // For Windows
+                new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
+            } else {
+                // For Unix-like systems
+                System.out.print("\033[H\033[2J");
+                System.out.flush();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public static String getFileContent(String filePath) throws IOException {
         File file = new File(filePath);
         if (!file.exists()) {
