@@ -75,6 +75,7 @@ public class TagService {
             }
             content+=(key + ":" + result+"\n\r");
         }
+        System.out.println(content);
     }
 
     private JSONObject keepTagsOnly() {

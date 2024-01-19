@@ -31,7 +31,7 @@ public class Timer {
 
 //    volatile  Set<String> flags;
 
-    private ConcurrentHashMap<String, Integer> flags = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, Long> flags = new ConcurrentHashMap<>();
 
     boolean test;
 
@@ -50,8 +50,9 @@ public class Timer {
     }
 
     public String consumeInput(){
+//        Utils.clearConsole();
         if(inputExists()){
-//            Utils.clearConsole();
+            Utils.clearConsole();
             return inputs.remove(0);
         }
         return "";
@@ -80,8 +81,8 @@ public class Timer {
     public void start() throws Exception {
         System.out.println("starting timer");
         inputThreadStart();
-
-        while (!consumeInput().equalsIgnoreCase("stop")) {
+        boolean run = true;
+        while (run) {
             System.out.println("---------------Menu------------");
             System.out.println("[count] startCounting");
             System.out.println("[add] add min to subject");
@@ -121,6 +122,9 @@ public class Timer {
                     break;
                 case "ps":
                     printSumLastXDays();
+                    break;
+                case "stop":
+                    run = false;
                     break;
             }
         }
@@ -193,7 +197,7 @@ public class Timer {
     public void countingMenu() throws Exception {
         boolean loop = true;
         while (true && loop) {
-            Utils.clearConsole();
+//            Utils.clearConsole();
             timerService.printToday();
             tagService.printSubjects();
             printTimerList();
@@ -254,12 +258,7 @@ public class Timer {
             minutes = Integer.parseInt(arr[1]);
         }
 
-        if (flags.containsKey(subject)) {
-            System.out.println(String.format("Cannot start timer '%s', because already started", subject));
-            return;
-        } else {
-            flags.put(subject, 0);
-        }
+
 
         // Get the current date and time
         LocalDateTime currentDateTime = LocalDateTime.now();
@@ -277,14 +276,19 @@ public class Timer {
             @Override
             public void run() {
                 try {
-                    startCounting(sub, min, formattedDateTime);
+                    startCounting(this.getId(), sub, min, formattedDateTime);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
             }
         };
 
-
+        if (flags.containsKey(subject)) {
+            System.out.println(String.format("Cannot start timer '%s', because already started", subject));
+            return;
+        } else {
+            flags.put(subject, counter.getId());
+        }
         counter.start();
 
     }
@@ -304,7 +308,7 @@ public class Timer {
         return "";
     }
 
-    public void startCounting(String subject, int m, String date) throws InterruptedException {
+    public void startCounting(long id, String subject, int m, String date) throws InterruptedException {
 
 //        String input = consumeInput();
 //        update(input);
@@ -324,6 +328,10 @@ public class Timer {
             Thread.sleep(60000L);
             if(!flags.containsKey(subject)){
                 return;
+            }else{
+                if(id!=flags.get(subject)){
+                    return;
+                }
             }
             Date current = new Date();
             long diff = current.getTime() - start.getTime();
@@ -363,7 +371,7 @@ public class Timer {
     }
 
     public void waitInput() throws Exception {
-        System.out.println("you have to input ...");
+        System.out.println("Listening for input ...");
         while (!inputExists()) {
             Thread.sleep(1000L);
         }
