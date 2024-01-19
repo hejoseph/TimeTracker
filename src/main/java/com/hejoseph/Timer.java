@@ -5,7 +5,10 @@ import com.hejoseph.common.Utils;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 
@@ -26,6 +29,12 @@ public class Timer {
 
     private boolean justStarted = true;
 
+//    volatile  Set<String> flags;
+
+    private ConcurrentHashMap<String, Integer> flags = new ConcurrentHashMap<>();
+
+    boolean test;
+
     private String currentFileName;
 
     private List<String> inputs;
@@ -34,6 +43,7 @@ public class Timer {
 
     public Timer() throws Exception {
         inputs = new ArrayList<>();
+//        flags = new HashSet<>();
         in = new Scanner(System.in);
         tagService = TagService.getInstance(dataJsonFile);
         timerService = TimerService.getInstance(dataJsonFile);
@@ -41,7 +51,7 @@ public class Timer {
 
     public String consumeInput(){
         if(inputExists()){
-            Utils.clearConsole();
+//            Utils.clearConsole();
             return inputs.remove(0);
         }
         return "";
@@ -63,7 +73,6 @@ public class Timer {
     }
 
     public static void main(String[] args) throws Exception {
-
         Timer timer = new Timer();
         timer.start();
     }
@@ -182,60 +191,163 @@ public class Timer {
     }
 
     public void countingMenu() throws Exception {
-        while (!getFirstInput().equalsIgnoreCase("back")) {
+        boolean loop = true;
+        while (true && loop) {
+            Utils.clearConsole();
             timerService.printToday();
             tagService.printSubjects();
-            System.out.println("--------------------------------------------");
-            System.out.println("Create/Choose subject ?:....  / [back]");
-            System.out.println("type 'youtube' to start the timer for youtube");
-            System.out.println("type 'youtube;5' to start the timer for youtube, it will end in 5 minutes");
-            System.out.println("[change] switch subject counter when timer is running ... (but have to wait 1 min)");
-            System.out.println("[back] menu");
+            printTimerList();
+            String content = "---------------------- Counting menu ----------------------\n\r" +
+                    "Create/Choose subject ?:....  / [back]\n\r"+
+                    "type 'youtube' to start the timer for youtube\n\r"+
+                    "type 'youtube;5' to start the countdown for youtube, it will end in 5 minutes\n\r" +
+                    "type 'youtube;stop' to stop the timer for youtube\n\r" +
+                    "[back] menu\n\r";
+            System.out.println(content);
             waitInput();
-            if (!getFirstInput().equalsIgnoreCase("back")) {
-                startCounting();
+            String firstInput = consumeInput();
+//            String firstInput = in.nextLine();
+            String action = getAction(firstInput);
+            switch(action) {
+                case "back":
+                    loop = false;
+                    break;
+                case "startTimer":
+                    startTimer(firstInput);
+                    break;
+                case "stopTimer":
+                    stopTimer(firstInput);
+                    break;
             }
         }
-        consumeInput();
+//        consumeInput();
     }
 
-    public void startCounting() throws Exception {
-        String input = consumeInput();
-        update(input);
-        System.out.println(new Date()+", start counting for '"+subject+"'");
-        int tmpMin = min;
+    private void printTimerList() {
+        if(flags.isEmpty()) return;
+        String content = "---------------- List of started timers -------------\n\r";
+        for(String key : flags.keySet()){
+            content+=key+"\n\r";
+        }
+
+        System.out.println(content);
+    }
+
+    private void stopTimer(String firstInput) {
+        String[] arr = firstInput.split(";");
+        String subject = arr[0];
+        if (flags.containsKey(subject)) {
+            System.out.println("Stopping timer : " + subject);
+            flags.remove(subject);
+        }
+    }
+
+
+
+
+    private void startTimer(String firstInput) {
+        String[] arr = firstInput.split(";");
+        String subject = firstInput;
+        int minutes = MAX;
+        if(arr.length==2){
+            subject = arr[0];
+            minutes = Integer.parseInt(arr[1]);
+        }
+
+        if (flags.containsKey(subject)) {
+            System.out.println(String.format("Cannot start timer '%s', because already started", subject));
+            return;
+        } else {
+            flags.put(subject, 0);
+        }
+
+        // Get the current date and time
+        LocalDateTime currentDateTime = LocalDateTime.now();
+
+        // Format the date and time (optional)
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        final String formattedDateTime = currentDateTime.format(formatter);
+
+        test = true;
+
+        final String sub = subject;
+        final int min = minutes;
+
+        Thread counter = new Thread() {
+            @Override
+            public void run() {
+                try {
+                    startCounting(sub, min, formattedDateTime);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        };
+
+
+        counter.start();
+
+    }
+
+    private String getAction(String firstInput) {
+        if(firstInput.equals("back")) return "back";
+        if(!firstInput.contains(";")) return "startTimer";
+        String[] arr = firstInput.split(";");
+        if(arr[1].equals("stop")) return "stopTimer";
+
+        try{
+            Integer.parseInt(arr[1]);
+            return "startTimer";
+        }catch(NumberFormatException n){
+            System.out.println(String.format("command not found : %s", firstInput));
+        }
+        return "";
+    }
+
+    public void startCounting(String subject, int m, String date) throws InterruptedException {
+
+//        String input = consumeInput();
+//        update(input);
+//        date = (new Date()).toString();
+//        System.out.println(date+", start counting for '"+subject+"'");
+        int tmpMin = m;
         String tmpSubject = subject;
 
         boolean tmp = (tmpMin == MAX);
         int i = 0;
         int display = (tmp == true) ? i : tmpMin;
-        System.out.println(display);
+        System.out.println(String.format("%s : Timer '%s' has started : %d", date, subject, display));
+//        System.out.println(display);
 
-        while (tmpMin > 0 && !input.equalsIgnoreCase("change") && !input.equalsIgnoreCase("back")) {
+        while (tmpMin > 0) {
             Date start = new Date();
             Thread.sleep(60000L);
+            if(!flags.containsKey(subject)){
+                return;
+            }
             Date current = new Date();
             long diff = current.getTime() - start.getTime();
             long minutes = TimeUnit.MILLISECONDS.toMinutes(diff);
-            if(minutes > 1 && minutes < 120){ //when computer goes to sleep, and you are for example cleaning the room, minutes will be added to subject
+            if (minutes > 1 && minutes < 120) { //when computer goes to sleep, and you are for example cleaning the room, minutes will be added to subject
                 System.out.println(start);
                 System.out.println(current);
-                System.out.println("diff = "+minutes+" min");
-                i+=minutes;
-                tmpMin-=minutes;
-                timerService.addTimeToSubjectForDate(timerService.getStringDate(current), tmpSubject, Utils.convertMinutesToTimeFormat((int)minutes));
-            }else{
+                System.out.println("diff = " + minutes + " min");
+                i += minutes;
+                tmpMin -= minutes;
+                timerService.addTimeToSubjectForDate(timerService.getStringDate(current), tmpSubject, Utils.convertMinutesToTimeFormat((int) minutes));
+            } else {
                 i++;
                 tmpMin--;
                 timerService.addTimeToSubjectForDate(timerService.getStringDate(current), tmpSubject, "00:01:00");
             }
             display = (tmp == true) ? i : tmpMin;
-            System.out.println(display);
-            input = consumeInput();
+            System.out.println(String.format("timer[%s]:%d", subject, display));
+//            input = consumeInput();
         }
-        SoundPlayer.play();
-        DisplayImage.run();
-
+//        SoundPlayer.play();
+        if (tmpMin == 0) {
+            DisplayImage.run();
+        }
 //        Utils.sendKeys(); //send win+1, you can put terminal as first taskbar program to make it pop up when timer ends
     }
 
@@ -251,6 +363,7 @@ public class Timer {
     }
 
     public void waitInput() throws Exception {
+        System.out.println("you have to input ...");
         while (!inputExists()) {
             Thread.sleep(1000L);
         }
@@ -260,11 +373,12 @@ public class Timer {
         Thread thread = new Thread() {
             public void run() {
                 while (!getFirstInput().equalsIgnoreCase("stop")) {
-                    System.out.println("you have to input ...");
+
                     try {
                         addInputToPool(in.nextLine());
-                        update(getFirstInput());
+//                        update(getFirstInput());
                     } catch (Exception e) {
+                        e.printStackTrace();
                         addInputToPool("stop");
                     }
                 }
