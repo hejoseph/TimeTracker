@@ -73,8 +73,9 @@ public class TimerService {
     public void printToday() {
         tagCount = new HashMap<>();
         String today = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
-        System.out.println("------------ Today : " + today + "------------");
+        String content = "------------ Today : " + today + "------------\n\r";
         JSONObject dateState = (JSONObject) this.jsonData.get(today);
+        if(dateState == null)return;
         List<String> subjects = new ArrayList<>(dateState.keySet());
         Collections.sort(subjects);
         String total = "00:00:00";
@@ -82,7 +83,7 @@ public class TimerService {
         for (String subject : subjects) {
             String timeStr = (String) dateState.get(subject);
             total = Utils.addTime(total, timeStr);
-            System.out.println(String.format("%s=%s", subject, timeStr));
+            content+= String.format("%s=%s\n\r", subject, timeStr);
             String tagGroup = tagService.getTagGroupForTag(subject);
 
             if (tagGroup == null) {
@@ -92,7 +93,7 @@ public class TimerService {
 
             updateTagCount(tagGroup, timeStr);
         }
-
+        System.out.println(content);
         printTagCount(total, untagSubject);
     }
 
@@ -146,27 +147,29 @@ public class TimerService {
     }
 
     private void printTagCount(String total, String untagSubject) {
-        System.out.println("--------------------");
-        System.out.println("total=" + total);
+        String content = "---------- Time by tags ----------\n\r";
+        content += ("total=" + total+"\n\r");
         Set<String> keys = tagCount.keySet();
         List<String> sortedKeys = new ArrayList<>(keys);
         Collections.sort(sortedKeys);
         for (String key : sortedKeys) {
             String value = tagCount.get(key);
-            System.out.println("Tag: " + key + ", Total Duration: " + value);
+            content += ("Tag: " + key + ", Total Duration: " + value+"\n\r");
         }
 
         if (untagSubject.length() > 0) {
             untagSubject = untagSubject.substring(0, untagSubject.length() - 1);
-            System.out.println("notag subject : " + untagSubject);
+            content+=("notag subject : " + untagSubject+"\n\r");
         }
+
+        System.out.println(content);
     }
 
     public void sumDurationsLastSevenDays() {
         sumDurationsLastXDays(7);
     }
 
-    public void addTimeToSubjectForDate(String date, String subject, String time) {
+    public synchronized void addTimeToSubjectForDate(String date, String subject, String time) {
         if (jsonData.containsKey(date)) {
             JSONObject dateData = (JSONObject) jsonData.get(date);
             if (dateData.containsKey(subject)) {

@@ -48,8 +48,9 @@ public class TagService {
     }
 
     public void printSubjects(){
-        System.out.println("---------------- All Tags -------------");
         JSONObject tags = (JSONObject) this.jsonData.get("tags");
+        if(tags==null)return;
+        String content = ("---------------- All Tags -------------\n\r");
         List<String> keys = new ArrayList<>(tags.keySet());
         Collections.sort(keys);
         for (String key : keys) {
@@ -72,8 +73,9 @@ public class TagService {
             if (result.endsWith(";")) {
                 result = result.substring(0, result.length() - 1);
             }
-            System.out.println(key + ":" + result);
+            content+=(key + ":" + result+"\n\r");
         }
+        System.out.println(content);
     }
 
     private JSONObject keepTagsOnly() {
