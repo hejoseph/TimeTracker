@@ -95,3 +95,5 @@ When you run the Timer Application, you'll be greeted with a user-friendly menu 
 - To start tracking time for a specific activity, enter count. You can specify the activity and its duration (in minutes) in the format activity;minutes.
 - To add minutes to a subject, use the add option and provide the subject and the duration in the format subject;hh:mm:ss.
 - You can create or manage tags for your activities using the addTags option, allowing you to categorize your time.
+
+[![Timer App](screenshot2.png)](screenshot2.png)
