@@ -24,9 +24,11 @@ Ready to experience distraction-free time management? Install the Timer Applicat
 
 Getting started is a breeze! Follow the simple installation steps in the [Getting Started](#getting-started) section below, and you'll be tracking your time in no time.
 
-Don't let distractions stand in your way. Join our community of efficient time managers and enjoy distraction-free productivity. Welcome to the Timer Application!
+Don't let distractions stand in your way. Enjoy distraction-free productivity. Welcome to the Timer Application!
 
-[![Timer App](link-to-your-app-screenshot.png)](link-to-your-app-demo-or-screenshot)
+[![Timer App](screenshot.png)](screenshot.png)
+
+A popup will appear, reminding you to take break, after you have set a countdown for any tasks you are on !
 
 ## Table of Contents
 
