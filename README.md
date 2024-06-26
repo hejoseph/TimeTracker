@@ -97,3 +97,8 @@ When you run the Timer Application, you'll be greeted with a user-friendly menu 
 - You can create or manage tags for your activities using the addTags option, allowing you to categorize your time.
 
 [![Timer App](screenshot2.png)](screenshot2.png)
+
+
+
+----------------- COMING SOON : NEXT RELEASE -----------
+[![Timer App](coming_soon.png)](coming_soon.png)
