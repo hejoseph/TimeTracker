@@ -100,5 +100,16 @@ When you run the Timer Application, you'll be greeted with a user-friendly menu 
 
 
 
------------------ COMING SOON : NEXT RELEASE -----------
+### ----------------- COMING SOON : NEXT RELEASE -----------------
 [![Timer App](coming_soon.png)](coming_soon.png)
+
+# New features :
+  - Track the total time you spent on looking at the screen / sit in your chair
+  - Track the total time you take a break / away from computer
+  - Automatically remind you to take a break every 30 min (you can set the time)
+  - Automatically play musics from a folder, when you take 5 min break (you can set the time)
+  - When screen turns off / lock screen, the break timer auto start
+  - When you come back / unlock screen, the screen timer auto start
+  - A transparent countdown timer to remind the time left before you have to take a break
+      - It changes color when background is dark or bright, to be always visible transparently
+  - NEW GUI for tracking time spents on any activities / subjects
